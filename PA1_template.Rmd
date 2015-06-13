@@ -32,7 +32,7 @@ without.NAs <- filter(data,
 
 
 ## What is mean total number of steps taken per day?
-```{r meanMedianAndHistogram, echo=TRUE}
+```{r meanMedianAndHistogram, echo=TRUE, fig.align='center', fig.height=7}
 
 # we must group data by date
 data.1 <- group_by(without.NAs,
@@ -61,7 +61,7 @@ data1.median <- sprintf("%.2f", median(data.1$steps.by.days))
 
 
 ## What is the average daily activity pattern?
-```{r averageDailyPattern, echo=TRUE}
+```{r averageDailyPattern, echo=TRUE, fig.align='center'}
 
 # we must group data by intervals
 data.2 <- group_by(without.NAs,
@@ -118,7 +118,7 @@ data.4 <- data.3
 ```
 
 The last chunk of the code is for drawing a histogram, similarly as in the first task of this assignment.
-```{r}
+```{r, fig.height=7, fig.align='center'}
 data.3 <- ungroup(data.3)
 
 data.3 <- group_by(data.3,
@@ -141,12 +141,12 @@ data3.mean <- sprintf("%.2f", mean(data.3$steps.by.days))
 data3.median <- sprintf("%.2f", median(data.3$steps.by.days))
 
 ```
-**Mean** total number of steps taken per day with `NA`s replaced is **`r data3.mean`**, while the **median** has value of **`r data3.median`**. **Sem treba dat este vetu, ze ako sa hodnoty zmenili oproti tomu, ked sme s NA hodnotami neratali!!!!!!!!!!!!!!!!!!!!!!!!**
+**Mean** total number of steps taken per day with `NA`s replaced is **`r data3.mean`**, while the **median** has value of **`r data3.median`**. After inspecting the new histogram made of dataset with `NA`s included we can see slightly different results. The total amount of days is increased by 8 which has an impact also on the median, which is greater than before and equals to mean number of steps taken.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 In this part we have got one restriction, which is to use the dataset made few steps before, where all `NA`s were replaced.
-```{r}
+```{r, fig.align='center'}
 
 data.4 <- ungroup(data.4)
 

@@ -50,7 +50,7 @@ hist(data.1$steps.by.days,
      col="orange")
 ```
 
-![](PA1_template_files/figure-html/meanMedianAndHistogram-1.png) 
+<img src="PA1_template_files/figure-html/meanMedianAndHistogram-1.png" title="" alt="" style="display: block; margin: auto;" />
 
 ```r
 data1.mean <- sprintf("%.2f", mean(data.1$steps.by.days))
@@ -82,7 +82,7 @@ with(data.2, plot(interval,
                   ylab="Average Number of Steps Taken"))
 ```
 
-![](PA1_template_files/figure-html/averageDailyPattern-1.png) 
+<img src="PA1_template_files/figure-html/averageDailyPattern-1.png" title="" alt="" style="display: block; margin: auto;" />
 
 ```r
 # we must ungroup the data so that we can find interval with maximal average steps taken
@@ -146,13 +146,13 @@ hist(data.3$steps.by.days,
      col="orange")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+<img src="PA1_template_files/figure-html/unnamed-chunk-4-1.png" title="" alt="" style="display: block; margin: auto;" />
 
 ```r
 data3.mean <- sprintf("%.2f", mean(data.3$steps.by.days))
 data3.median <- sprintf("%.2f", median(data.3$steps.by.days))
 ```
-**Mean** total number of steps taken per day with `NA`s replaced is **10766.19**, while the **median** has value of **10766.19**. **Sem treba dat este vetu, ze ako sa hodnoty zmenili oproti tomu, ked sme s NA hodnotami neratali!!!!!!!!!!!!!!!!!!!!!!!!**
+**Mean** total number of steps taken per day with `NA`s replaced is **10766.19**, while the **median** has value of **10766.19**. After inspecting the new histogram made of dataset with `NA`s included we can see slightly different results. The total amount of days is increased by 8 which has an impact also on the median, which is greater than before and equals to mean number of steps taken.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -185,4 +185,4 @@ xyplot(average.steps.by.day.type ~ interval | day.type,
        type="l")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+<img src="PA1_template_files/figure-html/unnamed-chunk-5-1.png" title="" alt="" style="display: block; margin: auto;" />

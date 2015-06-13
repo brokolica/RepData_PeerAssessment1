@@ -3,24 +3,9 @@
 Before starting we have to load some libraries neccessary for next work. Also, we set a name of directory, in which our dataset is.
 
 ```r
-library(dplyr)
-```
-
-```
-## 
-## Attaching package: 'dplyr'
-## 
-## The following object is masked from 'package:stats':
-## 
-##     filter
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
-
-```r
-library(lattice)
+library(dplyr, quietly=TRUE, warn.conflicts=FALSE)
+library(lattice, quietly=TRUE)
+library(knitr)
 filename <- "activity.zip"
 ```
 
@@ -34,6 +19,7 @@ data <- read.csv(unz(filename, "activity.csv"),
 
 data <- tbl_df(data)
 
+# we save datasets twice - with NAs & without NAs
 with.NAs <- data
 without.NAs <- filter(data,
                       !is.na(steps))
@@ -67,10 +53,10 @@ hist(data.1$steps.by.days,
 ![](PA1_template_files/figure-html/meanMedianAndHistogram-1.png) 
 
 ```r
-data1.mean <- mean(data.1$steps.by.days)
-data1.median <- median(data.1$steps.by.days)
+data1.mean <- sprintf("%.2f", mean(data.1$steps.by.days))
+data1.median <- sprintf("%.2f", median(data.1$steps.by.days))
 ```
-Mean total number of steps taken per day is 1.0766189\times 10^{4}, while the median has value of 1.0765\times 10^{4}.
+**Mean** total number of steps taken per day is **10766.19**, while the **median** has value of **10765.00**.
 
 
 ## What is the average daily activity pattern?
@@ -106,7 +92,7 @@ data.2 <- ungroup(data.2)
 maximum.number.of.steps <- filter(data.2,
                                   average.steps.by.intervals==max(average.steps.by.intervals))$interval
 ```
-Interval **835** contains the maximum number of steps, on average across all the days in the dataset.
+Interval **835** contains the **maximum number of steps**, on average across all the days in the dataset.
 
 
 ## Imputing missing values
@@ -114,7 +100,7 @@ Interval **835** contains the maximum number of steps, on average across all the
 ```r
 sum.of.NAs <- sum(is.na(with.NAs))
 ```
-The total number of missing values in the dataset (i.e. the total number of rows with `NA`s) is **2304**.
+The total **number of missing values** in the dataset (i.e. the total number of rows with `NA`s) is **2304**.
 
 In the next code chunk we firstly group data by inervals (including rows with `NA`s). That is made because we are going to replace all `NA`s with mean number of steps taken in each interval.
 
@@ -128,65 +114,55 @@ So after grouping the data is done, we add a variable called inerval.mean, which
 data.3 <- mutate(data.3, interval.mean=mean(steps, na.rm=TRUE))
 ```
 
-The last step is done with ease of `ifelse` statement, which allows us to simply replace `NA`s with mean number of steps for current interval, or to let there original number of steps.
+The last step is done with an ease of `ifelse` statement, which allows us to simply replace `NA`s with mean number of steps for current interval, or to let there original number of steps.
 
 ```r
 data.3 <- mutate(data.3, steps=ifelse(is.na(steps), interval.mean, steps))
 data.3 <- select(data.3, steps, date, interval)
-data.3
+
+# this is just for saving our time - we store the modified dataset for next task
+data.4 <- data.3
 ```
 
-```
-## Source: local data frame [17,568 x 3]
-## Groups: interval
-## 
-##        steps       date interval
-## 1  1.7169811 2012-10-01        0
-## 2  0.3396226 2012-10-01        5
-## 3  0.1320755 2012-10-01       10
-## 4  0.1509434 2012-10-01       15
-## 5  0.0754717 2012-10-01       20
-## 6  2.0943396 2012-10-01       25
-## 7  0.5283019 2012-10-01       30
-## 8  0.8679245 2012-10-01       35
-## 9  0.0000000 2012-10-01       40
-## 10 1.4716981 2012-10-01       45
-## ..       ...        ...      ...
-```
-
-
+The last chunk of the code is for drawing a histogram, similarly as in the first task of this assignment.
 
 ```r
-# data.3 <- ungroup(data.3)
-# 
-# data.3 <- group_by(data.3,
-#                    date)
-# 
-# data.3 <- mutate(data.3,
-#                  steps.by.days=sum(new.steps))
-# 
-# data.3 <- distinct(data.3,
-#                    date)
-# 
-# hist(data.3$steps.by.days,
-#      xlab="Number of Steps Taken",
-#      ylab="Number of Days",
-#      main="Histogram of number of steps taken by days",
-#      labels=TRUE,
-#      col="orange")
-# 
-# data3.mean <- mean(data.3$steps.by.days)
-# data3.median <- median(data.3$steps.by.days)Mean total number of steps taken per day with `NA`s replaced is `r data3.mean`, while the median has value of `r data3.median`.
+data.3 <- ungroup(data.3)
+
+data.3 <- group_by(data.3,
+                   date)
+
+data.3 <- mutate(data.3,
+                 steps.by.days=sum(steps))
+
+data.3 <- distinct(data.3,
+                   date)
+
+hist(data.3$steps.by.days,
+     xlab="Number of Steps Taken",
+     ylab="Number of Days",
+     main="Histogram of number of steps taken by days",
+     labels=TRUE,
+     col="orange")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
+```r
+data3.mean <- sprintf("%.2f", mean(data.3$steps.by.days))
+data3.median <- sprintf("%.2f", median(data.3$steps.by.days))
+```
+**Mean** total number of steps taken per day with `NA`s replaced is **10766.19**, while the **median** has value of **10766.19**. **Sem treba dat este vetu, ze ako sa hodnoty zmenili oproti tomu, ked sme s NA hodnotami neratali!!!!!!!!!!!!!!!!!!!!!!!!**
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 In this part we have got one restriction, which is to use the dataset made few steps before, where all `NA`s were replaced.
 
 ```r
+data.4 <- ungroup(data.4)
+
 # we simply add a variable containing type of the current day
-data.4 <- mutate(without.NAs,
+data.4 <- mutate(data.4,
                  day.type=ifelse(weekdays(date) %in% c('sobota','nedela'),'weekend','weekday'))
 
 # we must group data by intervals and by date.type simultaneously
@@ -197,11 +173,9 @@ data.4 <- group_by(data.4,
 data.4 <- mutate(data.4,
                  average.steps.by.day.type=sum(steps)/n())
 
-
 data.4 <- distinct(data.4,
                    interval,
                    day.type)
-
 
 xyplot(average.steps.by.day.type ~ interval | day.type,
        data=data.4,
@@ -212,17 +186,3 @@ xyplot(average.steps.by.day.type ~ interval | day.type,
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
-
-```r
-data.4 <- ungroup(data.4)
-
-filter(data.4,
-       average.steps.by.day.type==max(average.steps.by.day.type))
-```
-
-```
-## Source: local data frame [1 x 5]
-## 
-##   steps       date interval day.type average.steps.by.day.type
-## 1   173 2012-10-06      915  weekend                  276.1429
-```

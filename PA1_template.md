@@ -1,20 +1,32 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
-```{r settingThingsUp, echo=TRUE, results='hide'}
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     filter
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(lattice)
 filename <- "activity.zip"
 ```
 
 
 ## Loading and preprocessing the data
-```{r loadAndPreprocess, echo=TRUE}
 
+```r
 data <- read.csv(unz(filename, "activity.csv"),
                  header=TRUE,
                  colClasses=c("numeric","Date","numeric"))
@@ -28,8 +40,8 @@ without.NAs <- filter(data, !is.na(steps))
 
 ## What is mean total number of steps taken per day?
 
-```{r meanMedianAndHistogram, echo=TRUE}
 
+```r
 # we must group data by date
 data.1 <- group_by(without.NAs, date)
 
@@ -45,16 +57,31 @@ hist(data.1$steps.by.days,
      main="Histogram of number of steps taken by days",
      labels=TRUE,
      col="orange")
+```
 
+![](PA1_template_files/figure-html/meanMedianAndHistogram-1.png) 
+
+```r
 mean(data.1$steps.by.days)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(data.1$steps.by.days)
+```
+
+```
+## [1] 10765
 ```
 
 
 
 ## What is the average daily activity pattern?
-```{r averageDailyPattern, echo=TRUE}
 
+```r
 # we must group data by intervals
 data.2 <- group_by(without.NAs, interval)
 
@@ -66,7 +93,11 @@ data.2 <- distinct(data.2, interval)
 
 # finally, we can draw a plot
 with(data.2, plot(interval, average.steps.by.intervals, type="l"))
+```
 
+![](PA1_template_files/figure-html/averageDailyPattern-1.png) 
+
+```r
 # we must ungroup the data so that we can find interval with maximal average steps taken
 data.2 <- ungroup(data.2)
 
@@ -74,11 +105,21 @@ data.2 <- ungroup(data.2)
 filter(data.2, average.steps.by.intervals==max(average.steps.by.intervals))$interval
 ```
 
+```
+## [1] 835
+```
+
 ## Imputing missing values
-```{r imputingMissingValues, echo=TRUE}
 
+```r
 sum(is.na(with.NAs))
+```
 
+```
+## [1] 2304
+```
+
+```r
 # data <- group_by(data, interval)
 # data <- mutate(data, interval.mean=mean(steps, na.rm=TRUE))
 # backup <- mutate(backup, new.steps=ifelse(is.na(steps), interval.mean, steps))
@@ -86,8 +127,8 @@ sum(is.na(with.NAs))
 
 ## Are there differences in activity patterns between weekdays and weekends?
 V tejto casti treba pouzit data, kde su NA hodnoty nahradene uz!!!
-```{r}
 
+```r
 # we simply add a variable containing type of the current day
 data.4 <- mutate(without.NAs, day.type=ifelse(weekdays(date) %in% c('sobota','nedela'),'weekend','weekday'))
 
@@ -101,10 +142,21 @@ data.4 <- distinct(data.4, interval, day.type)
 
 
 xyplot(average.steps.by.day.type ~ interval | day.type, data=data.4, layout=c(1,2), type="l")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-1-1.png) 
+
+```r
 data.4 <- ungroup(data.4)
 
 filter(data.4, average.steps.by.day.type==max(average.steps.by.day.type))
+```
+
+```
+## Source: local data frame [1 x 5]
+## 
+##   steps       date interval day.type average.steps.by.day.type
+## 1   173 2012-10-06      915  weekend                  276.1429
 ```
 
 

@@ -45,7 +45,8 @@ data.1 <- distinct(data.1,
 
 # finally, we can draw a histogram
 hist(data.1$steps.by.days,
-     xlab="Num. of steps",
+     xlab="Number of Steps Taken",
+     ylab="Number of Days",
      main="Histogram of number of steps taken by days",
      labels=TRUE,
      col="orange")
@@ -74,30 +75,71 @@ data.2 <- distinct(data.2,
 # finally, we can draw a plot
 with(data.2, plot(interval,
                   average.steps.by.intervals,
-                  type="l"))
+                  type="l",
+                  xlab="Intervals",
+                  ylab="Average Number of Steps Taken"))
 
 # we must ungroup the data so that we can find interval with maximal average steps taken
 data.2 <- ungroup(data.2)
 
 # now we can find needed interval
-filter(data.2,
-       average.steps.by.intervals==max(average.steps.by.intervals))$interval
+maximum.number.of.steps <- filter(data.2,
+                                  average.steps.by.intervals==max(average.steps.by.intervals))$interval
 ```
-Average daily number of steps taken 
+Interval **`r maximum.number.of.steps`** contains the maximum number of steps, on average across all the days in the dataset.
 
 
 ## Imputing missing values
 ```{r imputingMissingValues, echo=TRUE}
+sum.of.NAs <- sum(is.na(with.NAs))
+```
+The total number of missing values in the dataset (i.e. the total number of rows with `NA`s) is **`r sum.of.NAs`**.
 
-sum(is.na(with.NAs))
-
-# data <- group_by(data, interval)
-# data <- mutate(data, interval.mean=mean(steps, na.rm=TRUE))
-# backup <- mutate(backup, new.steps=ifelse(is.na(steps), interval.mean, steps))
+In the next code chunk we firstly group data by inervals (including rows with `NA`s). That is made because we are going to replace all `NA`s with mean number of steps taken in each interval.
+```{r}
+data.3 <- group_by(with.NAs, interval)
 ```
 
+So after grouping the data is done, we add a variable called inerval.mean, which contains mean number of steps taken for each interval separately.
+```{r}
+data.3 <- mutate(data.3, interval.mean=mean(steps, na.rm=TRUE))
+```
+
+The last step is done with ease of `ifelse` statement, which allows us to simply replace `NA`s with mean number of steps for current interval, or to let there original number of steps.
+```{r}
+data.3 <- mutate(data.3, steps=ifelse(is.na(steps), interval.mean, steps))
+data.3 <- select(data.3, steps, date, interval)
+```
+
+
+```{r}
+data.3 <- ungroup(data.3)
+
+data.3 <- group_by(data.3,
+                   date)
+
+data.3 <- mutate(data.3,
+                 steps.by.days=sum(new.steps))
+
+data.3 <- distinct(data.3,
+                   date)
+
+hist(data.3$steps.by.days,
+     xlab="Number of Steps Taken",
+     ylab="Number of Days",
+     main="Histogram of number of steps taken by days",
+     labels=TRUE,
+     col="orange")
+
+data3.mean <- mean(data.3$steps.by.days)
+data3.median <- median(data.3$steps.by.days)
+
+```
+Mean total number of steps taken per day with `NA`s replaced is `r data3.mean`, while the median has value of `r data3.median`.
+
+
 ## Are there differences in activity patterns between weekdays and weekends?
-V tejto casti treba pouzit data, kde su NA hodnoty nahradene uz!!!
+In this part we have got one restriction, which is to use the dataset made few steps before, where all `NA`s were replaced.
 ```{r}
 
 # we simply add a variable containing type of the current day
@@ -120,6 +162,8 @@ data.4 <- distinct(data.4,
 
 xyplot(average.steps.by.day.type ~ interval | day.type,
        data=data.4,
+       xlab="Intervals",
+       ylab="Average Number of Steps Taken",
        layout=c(1,2),
        type="l")
 

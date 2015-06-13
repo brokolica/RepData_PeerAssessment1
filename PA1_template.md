@@ -57,7 +57,8 @@ data.1 <- distinct(data.1,
 
 # finally, we can draw a histogram
 hist(data.1$steps.by.days,
-     xlab="Num. of steps",
+     xlab="Number of Steps Taken",
+     ylab="Number of Days",
      main="Histogram of number of steps taken by days",
      labels=TRUE,
      col="orange")
@@ -90,7 +91,9 @@ data.2 <- distinct(data.2,
 # finally, we can draw a plot
 with(data.2, plot(interval,
                   average.steps.by.intervals,
-                  type="l"))
+                  type="l",
+                  xlab="Intervals",
+                  ylab="Average Number of Steps Taken"))
 ```
 
 ![](PA1_template_files/figure-html/averageDailyPattern-1.png) 
@@ -100,32 +103,86 @@ with(data.2, plot(interval,
 data.2 <- ungroup(data.2)
 
 # now we can find needed interval
-filter(data.2,
-       average.steps.by.intervals==max(average.steps.by.intervals))$interval
+maximum.number.of.steps <- filter(data.2,
+                                  average.steps.by.intervals==max(average.steps.by.intervals))$interval
 ```
+Interval **835** contains the maximum number of steps, on average across all the days in the dataset.
 
-```
-## [1] 835
-```
 
 ## Imputing missing values
 
 ```r
-sum(is.na(with.NAs))
+sum.of.NAs <- sum(is.na(with.NAs))
 ```
+The total number of missing values in the dataset (i.e. the total number of rows with `NA`s) is **2304**.
 
-```
-## [1] 2304
-```
+In the next code chunk we firstly group data by inervals (including rows with `NA`s). That is made because we are going to replace all `NA`s with mean number of steps taken in each interval.
 
 ```r
-# data <- group_by(data, interval)
-# data <- mutate(data, interval.mean=mean(steps, na.rm=TRUE))
-# backup <- mutate(backup, new.steps=ifelse(is.na(steps), interval.mean, steps))
+data.3 <- group_by(with.NAs, interval)
 ```
 
+So after grouping the data is done, we add a variable called inerval.mean, which contains mean number of steps taken for each interval separately.
+
+```r
+data.3 <- mutate(data.3, interval.mean=mean(steps, na.rm=TRUE))
+```
+
+The last step is done with ease of `ifelse` statement, which allows us to simply replace `NA`s with mean number of steps for current interval, or to let there original number of steps.
+
+```r
+data.3 <- mutate(data.3, steps=ifelse(is.na(steps), interval.mean, steps))
+data.3 <- select(data.3, steps, date, interval)
+data.3
+```
+
+```
+## Source: local data frame [17,568 x 3]
+## Groups: interval
+## 
+##        steps       date interval
+## 1  1.7169811 2012-10-01        0
+## 2  0.3396226 2012-10-01        5
+## 3  0.1320755 2012-10-01       10
+## 4  0.1509434 2012-10-01       15
+## 5  0.0754717 2012-10-01       20
+## 6  2.0943396 2012-10-01       25
+## 7  0.5283019 2012-10-01       30
+## 8  0.8679245 2012-10-01       35
+## 9  0.0000000 2012-10-01       40
+## 10 1.4716981 2012-10-01       45
+## ..       ...        ...      ...
+```
+
+
+
+```r
+# data.3 <- ungroup(data.3)
+# 
+# data.3 <- group_by(data.3,
+#                    date)
+# 
+# data.3 <- mutate(data.3,
+#                  steps.by.days=sum(new.steps))
+# 
+# data.3 <- distinct(data.3,
+#                    date)
+# 
+# hist(data.3$steps.by.days,
+#      xlab="Number of Steps Taken",
+#      ylab="Number of Days",
+#      main="Histogram of number of steps taken by days",
+#      labels=TRUE,
+#      col="orange")
+# 
+# data3.mean <- mean(data.3$steps.by.days)
+# data3.median <- median(data.3$steps.by.days)Mean total number of steps taken per day with `NA`s replaced is `r data3.mean`, while the median has value of `r data3.median`.
+```
+
+
+
 ## Are there differences in activity patterns between weekdays and weekends?
-V tejto casti treba pouzit data, kde su NA hodnoty nahradene uz!!!
+In this part we have got one restriction, which is to use the dataset made few steps before, where all `NA`s were replaced.
 
 ```r
 # we simply add a variable containing type of the current day
@@ -148,11 +205,13 @@ data.4 <- distinct(data.4,
 
 xyplot(average.steps.by.day.type ~ interval | day.type,
        data=data.4,
+       xlab="Intervals",
+       ylab="Average Number of Steps Taken",
        layout=c(1,2),
        type="l")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-1-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
 
 ```r
 data.4 <- ungroup(data.4)
